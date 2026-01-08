@@ -19,7 +19,7 @@ species intersection skills:[intersection_skill] {
   int inter_num;
 
   aspect base {
-    draw circle(1) color:#orange;
+    draw circle(0.2) color:#orange;
   }
 }
 

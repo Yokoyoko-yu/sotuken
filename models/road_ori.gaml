@@ -22,11 +22,12 @@ species road skills:[road_skill] parallel:true schedules:[]{
 	int road_width; //車道の幅員(単位はm)
 	float center_line;	//センターラインの幅員
 	float sholder; //路肩
-	float bicycle_line;//自転車専用交通帯
+	float bicycle_line;//自転車専用通行帯
 	float all_length;
 	point start;
 	point end;
 	float shift;
+	float car_shift; //中心線から車道までのずれ　normalcarで描画の際に使う
 	init{
 		self.all_length<-(center_line/2+road_width+sholder+bicycle_line);
 		write("端まで"+self.all_length+"m");
@@ -35,6 +36,7 @@ species road skills:[road_skill] parallel:true schedules:[]{
 		center_line<-center_line*scale;
 		sholder<-sholder*scale;
 		bicycle_line<-bicycle_line*scale;
+		car_shift<-(center_line+road_width)/2;
 	}
 	aspect base{
 		shift<-0.0;
@@ -58,7 +60,7 @@ species road skills:[road_skill] parallel:true schedules:[]{
 			draw polygon([start+{0,shift},start+{0,shift+sholder},end+{0,shift+sholder},end+{0,shift}]) color:#gray;
 		}
 		shift<-shift+sholder;
-		//自転車専用
+		//自転車専用通行帯
 		if(bicycle_line>0){
 			draw polygon([start-{0,shift+bicycle_line},start-{0,shift},end-{0,shift},end-{0,shift+bicycle_line}]) color:#blue;
 			
