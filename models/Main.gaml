@@ -14,6 +14,8 @@ model Main
 import "road_ori.gaml"
 import "Intersection.gaml"
 import "NormalCar.gaml"
+import "Pedestrian_road.gaml"
+import "Pedestrian.gaml"
 
 global{
 	int scale<-3;
@@ -38,6 +40,10 @@ experiment main type:gui{
     		color<-#green;
     	}
     	
+    	create pedestrian number:1{
+    		speed<-0.7;
+    	}
+    	
 	}
 	
 	
@@ -46,6 +52,8 @@ experiment main type:gui{
       species road aspect: base;
       species intersection aspect: base;
       species car aspect: base;
+      species pedestrian_road aspect:base;
+      species pedestrian aspect:base;
     }
   }
 }
