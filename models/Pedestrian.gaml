@@ -23,18 +23,7 @@ species pedestrian skills:[pedestrian]{
 	float speed;
 //	one_of(pedestrian_road).free_space
 	init{
-//		location<-one_of(start_list);
 		write("現在地"+location);
-//		if(location={0,29}){
-//			d<-{100,29};
-//		}else if(location={100,29}){
-//			d<-{0,29};
-//		}else if(location={0,73}){
-//			d<-{100,73};
-//		}else{
-//			d<-{0,73};
-//		}
-//		 d <- one_of(start_list where (each != location));
 		 write("目的地"+d);
 		 write("avoid"+avoid_other);
 		 write("ob"+obstacle_consideration_distance);
@@ -47,8 +36,8 @@ species pedestrian skills:[pedestrian]{
 		 minimal_distance <- 0.8#m;           // 最小距離（好みで調整）
 
   // 回避の強さ（まずは大きめにして効果を見る）
-  A_pedestrians_SFM <- 6.0;
-  B_pedestrians_SFM <- 0.8#m;
+		  A_pedestrians_SFM <- 6.0;
+		  B_pedestrians_SFM <- 0.8#m;
 		 //お試し
 	}
 	reflex walk when:pedestrian_network != nil{

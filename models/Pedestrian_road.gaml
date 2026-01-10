@@ -50,7 +50,7 @@ species pedestrian_road skills:[pedestrian_road]{
 		walk_bi_l<-walk_bi_l*scale;
 		//shapeの記述
 		float walk_s; //中心から歩道のセンターラインまでの距離
-		walk_s<-self.shift+g_l+bicy_l+green_l+(walk_l/2);
+		walk_s<-self.shift+g_l+bicy_l+green_l+(walk_l/2)+(walk_bi_l/2);
 		write("walk_s"+walk_s);
 		if(one_way=false){
 			shape<-polyline([self.start-{0,walk_s},self.end-{0,walk_s}]);
@@ -116,6 +116,9 @@ species pedestrian_road skills:[pedestrian_road]{
 			draw polygon([start-{0,s+walk_bi_l},start-{0,s},end-{0,s},end-{0,s+walk_bi_l}]) color:#orange;
 			
 			draw polygon([start+{0,s},start+{0,s+walk_bi_l},end+{0,s+walk_bi_l},end+{0,s}]) color:#orange;
+			
+			free_space<-free_space+polygon([start-{0,s+walk_bi_l},start-{0,s},end-{0,s},end-{0,s+walk_bi_l}])+polygon([start+{0,s},start+{0,s+walk_bi_l},end+{0,s+walk_bi_l},end+{0,s}]);
+			write("fs"+free_space);
 
 		}
 	}

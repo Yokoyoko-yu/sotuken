@@ -88,8 +88,6 @@ experiment road_test type:gui{
 			walk_bi_l:0
 		];
 		
-		
-		
 	}
 	output{
     display d type: opengl background:#cornsilk{
