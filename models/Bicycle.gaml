@@ -11,7 +11,7 @@ model Bicycle
 /* Insert your model definition here */
 
 
-import "road.gaml"
+//import "road.gaml"
 
 global{
 	float max_bicycle_speed<-15*(1000/3600)#m/#s;//目標速度 km/hをm/sに変換
