@@ -12,31 +12,44 @@ model roadori
 import "Main.gaml"
 
 species road skills:[road_skill] parallel:true schedules:[]{
-	bool oneway;
-	int width;	//描画用の太さ
-	rgb color;
 	bool one_way; //一方通行か否か
 	int speed; //制限速度
 	int p_lane;
 	int m_lane;
-	int road_width; //車道の幅員(単位はm)
 	float center_line;	//センターラインの幅員
+	int road_width; //車道の幅員(単位はm)
 	float sholder; //路肩
 	float bicycle_line;//自転車専用通行帯
-	float all_length;
 	point start;
 	point end;
 	float shift;
 	float car_shift; //中心線から車道までのずれ　normalcarで描画の際に使う
 	init{
-		self.all_length<-(center_line/2+road_width+sholder+bicycle_line);
-		write("端まで"+self.all_length+"m");
+		if(one_way=false){
+			create road with:[
+				one_way:true,
+				speed:self.speed,
+				p_lane:self.p_lane,
+				m_lane:self.m_lane,
+				road_width:self.road_width,
+				center_line:self.center_line,
+				sholder:self.sholder,
+				bicycle_line:self.bicycle_line,
+				start:self.end,
+				end:self.start,
+				shape:polyline([end,start])
+				];
+				write(road);
+		}
+		float all_length<-(center_line/2+road_width+sholder+bicycle_line);
+		write("端まで"+all_length+"m");
 		//小さいので道路をすべて3倍する
 		road_width<-road_width*scale;
 		center_line<-center_line*scale;
 		sholder<-sholder*scale;
 		bicycle_line<-bicycle_line*scale;
 		car_shift<-(center_line+road_width)/2;
+
 	}
 	aspect base{
 		shift<-0.0;
@@ -60,6 +73,7 @@ species road skills:[road_skill] parallel:true schedules:[]{
 			draw polygon([start+{0,shift},start+{0,shift+sholder},end+{0,shift+sholder},end+{0,shift}]) color:#gray;
 		}
 		shift<-shift+sholder;
+//		write("shift:"+shift);
 		//自転車専用通行帯
 		if(bicycle_line>0){
 			draw polygon([start-{0,shift+bicycle_line},start-{0,shift},end-{0,shift},end-{0,shift+bicycle_line}]) color:#blue;
@@ -70,53 +84,25 @@ species road skills:[road_skill] parallel:true schedules:[]{
 	}
 }
 
-
-
-species road_make{
-	init{
-		create road with:[
-			width:50,
-			color:#gray,
-			one_way:false,
-			speed:60,
-			p_lane:1,
-			m_lane:1,
-			road_width:3,
-			center_line:2.0,
-			sholder:0.5,
-			bicycle_line:0,
-			start:{0,50},
-			end:{100,50},
-			shape:polyline([{0,50},{100,50}])
-			
-		]{
-			if(one_way=false){
-				create road with:[
-				width:50,
-				color:#gray,
-				one_way:false,
-				speed:60,
-				p_lane:1,
-				m_lane:1,
-				road_width:3,
-				center_line:2.0,
-				sholder:0.5,
-				bicycle_line:0,
-				start:{100,50},
-				end:{0,50},
-				shape:polyline([{100,50},{0,50}])
-				];
-			}
-		}
-		
-		
-	}
-}
-
 experiment c type:gui{
 	 
 		init{
-			create road_make number:1 ;
+			point A<-{0,50};
+			point B<-{100,50};
+			create road with:[		
+						one_way:false,
+						speed:60,
+						p_lane:1,
+						m_lane:1,
+						road_width:3,
+						center_line:2.0,
+						sholder:0.5,
+						bicycle_line:0,
+						start:A,
+						end:B,
+						shape:polyline([A,B])
+			];
+			
 			
 			}
 			
@@ -125,6 +111,7 @@ experiment c type:gui{
 					species road aspect: base;
 					
 				}
+				
 			}
 					
 }
