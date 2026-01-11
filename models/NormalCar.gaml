@@ -27,7 +27,7 @@ species car skills:[driving]{
   }
   
   reflex delete{
-  	if final_target=nil{
+  	if final_target=nil or self.location=o.location{
   		write("削除しました");
   		do die;
   		

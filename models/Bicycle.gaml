@@ -10,13 +10,13 @@ model Bicycle
 
 /* Insert your model definition here */
 
+import "BicycleRoad.gaml"
 
-//import "road.gaml"
 
 global{
 	float max_bicycle_speed<-15*(1000/3600)#m/#s;//目標速度 km/hをm/sに変換
-	float bicycle_width<-0.5#m;
-	float bicycle_length<-1#m;
+	float bicycle_width<-1.2;	//0.5m
+	float bicycle_length<-5.4;	//1.8m
 	float tau<-5#s;
 	float A_bike<-0.8;
 	float B_bike<-0.7;
@@ -24,6 +24,7 @@ global{
 	float road_p;	//道路の境界から受ける斥力の重みづけ
 	float A_road<-1.0;
 	float B_road<-0.7;
+	//計測用
 	list <float> dead_list<-[0.0];
 	float arrive_sum<-0.0;
 	int arrive_num<-0;
@@ -33,11 +34,11 @@ species bicycle{
 	bool left_start; 
 //	make_roadで使用するもの(目的地によって変容しうる変数)
 	//走行中の道路
-	road use_road;
+	bicycle_road use_road;
 	//走行中の道路の位置
 	list use_road_point;
 	//自転車の中心点
-	point bicycle_point;
+	point location;
 	//1ステップ当たりに進む距離
 	point move_vector;
 	//色
@@ -59,22 +60,22 @@ species bicycle{
 	
 	
 	init{
-		//走行中の道路
-		use_road<-one_of(road where(self overlaps each));
 		//shapeに反映
 		shape<-polygon([
-			bicycle_point + {-bicycle_length/2, -bicycle_width/2},
-		    bicycle_point + {bicycle_length/2, -bicycle_width/2},
-		    bicycle_point + {bicycle_length/2, bicycle_width/2},
-		    bicycle_point + {-bicycle_length/2, bicycle_width/2}
+			location + {-bicycle_length/2, -bicycle_width/2},
+		    location + {bicycle_length/2, -bicycle_width/2},
+		    location + {bicycle_length/2, bicycle_width/2},
+		    location + {-bicycle_length/2, bicycle_width/2}
 		]);
+		//走行中の道路
+		use_road<-one_of(bicycle_road where(self overlaps each));
 		self.spawn_time<-time;
 	}
 	
 	//目標地点から受ける引力の計算(単位はm/s)
 	point update_gravity{
 		//目標地点までのベクトル
-		point target_vector<-target_point-bicycle_point;
+		point target_vector<-target_point-location;
 		//単位ベクトルに変換
 		point per_direction_vector<-target_vector/norm(target_vector);
 		//目標速度に変換
@@ -85,14 +86,14 @@ species bicycle{
 	//道路から受ける斥力を求める(道路の境界からの距離に比例する)
 	point add_road_repulsion{
 			point ans<-{0,0};
-			float d_to_target<-self.bicycle_point distance_to target_point;
+			float d_to_target<-self.location distance_to target_point;
 		loop i from:0 to:(length(use_road.shape.points)-2){
 			point s<-self.use_road.shape.points[i];//道路の始点
 			point e<-self.use_road.shape.points[i+1];//道路の終点
-			point np<-nearest_edge_v(s,e,self.bicycle_point);//自転車と最も近い点
-			float d_from_edge<-self.bicycle_point distance_to np;
-			if(d_from_edge)<5.0 and d_to_target>5.0 and self.bicycle_point!=np{
-				point d_r<-self.bicycle_point-np;
+			point np<-nearest_edge_v(s,e,self.location);//自転車と最も近い点
+			float d_from_edge<-self.location distance_to np;
+			if(d_from_edge)<5.0 and d_to_target>5.0 and self.location!=np{
+				point d_r<-self.location-np;
 				point e_r<-(d_r/norm(d_r));//自転車が逃げる方向の単位ベクトル
 				point g<-e_r*(A_road*(exp(-1*norm(d_r)/B_road)));
 				ans<-ans+g;
@@ -122,8 +123,8 @@ species bicycle{
 		list<bicycle> circle_bicycles<-all_bicycles where((each distance_to self)<25#m);
 	//双曲線内にいるエージェント
 		list<bicycle> affect_list<-circle_bicycles where(
-			((((move_vector*(self.bicycle_point-each.bicycle_point))*(move_vector*(self.bicycle_point-each.bicycle_point)))/(sqrt(3)/2)*(sqrt(3)/2))
-			-(((move_vector*(self.bicycle_point-each.bicycle_point))*(move_vector*(self.bicycle_point-each.bicycle_point)))/(1/2)*(1/2)))>(-1)
+			((((move_vector*(self.location-each.location))*(move_vector*(self.location-each.location)))/(sqrt(3)/2)*(sqrt(3)/2))
+			-(((move_vector*(self.location-each.location))*(move_vector*(self.location-each.location)))/(1/2)*(1/2)))>(-1)
 		);
 
 		return affect_list;
@@ -157,20 +158,20 @@ species bicycle{
 		self_n_point<-nl[1];
 		opponent_n_point<-nl[0];
 		}else{
-			self_n_point<-self.bicycle_point;
-			opponent_n_point<-a_bicycle.bicycle_point;
+			self_n_point<-self.location;
+			opponent_n_point<-a_bicycle.location;
 		}
 
 		//エージェントから主体までのベクトルd
-		point d<-(self_n_point-opponent_n_point);
+		point d_v<-(self_n_point-opponent_n_point);
 		//φを求める
 		float phi<-angle_between(self_n_point,opponent_n_point-self_n_point,self.move_vector);
 		float ganma<- lambda+(1-lambda)*((1+cos(phi))/2);
 		point relative_speed<-a_bicycle.move_vector-self.move_vector;//論文中のyの式にあたる
-		point e<-((d/norm(d))+((d-relative_speed)/norm((d-relative_speed))))*(0.5);
-		float b<-0.5*(sqrt((norm(d)+norm(d-relative_speed))*(norm(d)+norm(d-relative_speed))-(norm(relative_speed)*norm(relative_speed))));//Δtは反応速度
+		point e<-((d_v/norm(d_v))+((d_v-relative_speed)/norm((d_v-relative_speed))))*(0.5);
+		float b<-0.5*(sqrt((norm(d_v)+norm(d_v-relative_speed))*(norm(d_v)+norm(d_v-relative_speed))-(norm(relative_speed)*norm(relative_speed))));//Δtは反応速度
 		b<-max(0.000000001,b);
-		point g<-e*(A_bike*(max(0.1,exp(-b/B_bike)))*((norm(d)+norm(d-relative_speed))/(2*b)));
+		point g<-e*(A_bike*(max(0.1,exp(-b/B_bike)))*((norm(d_v)+norm(d_v-relative_speed))/(2*b)));
 //		write("g:"+g);
 		write("b:"+b);
 //		write("exp(-b/B_alfa)"+exp(-b/B_alfa));
@@ -197,27 +198,27 @@ species bicycle{
 				float y1<-move_vector.y;
 				
 				//位置が高いほうが上へよける
-				if(self.bicycle_point.y<a_bicycle.bicycle_point.y){	//自分が上の時
+				if(self.location.y<a_bicycle.location.y){	//自分が上の時
 					write("私が上");
 					if(self.move_vector.x>0){ //yは負
 						//左へ
 						write("左に回避1"+{y1,-x1}*0.1);
-						return {y1,-x1}*1;
+						return {y1,-x1}*0.01;
 					}else{
 						//右へ
 						write("右に回避1"+{-y1,x1}*0.1);
-						return {-y1,x1}*1;
+						return {-y1,x1}*0.01;
 					}
 				}else{	//自分が下の時yは正
 				write("私がした");
 					if(self.move_vector.x>0){
 						//右へ
 						write("右に回避2"+{-y1,x1}*0.1);
-						return {-y1,x1}*1;
+						return {-y1,x1}*0.01;
 					}else{
 						//左へ
 						write("左に回避2"+{y1,-x1}*0.1);
-						return {y1,-x1}*1;
+						return {y1,-x1}*0.01;
 					}
 				}
 	
@@ -231,7 +232,7 @@ species bicycle{
 	
 	//消去
 	action check_finish{
-		use_road<-one_of(road where(self overlaps each));
+		use_road<-one_of(bicycle_road where(self overlaps each));
 		bool is_arrive<-overlaps(self.shape,self.target_point);
 		write("目的地に到着した？"+is_arrive);
 //		use_road_point<-use_road.shape.points;
@@ -250,7 +251,7 @@ species bicycle{
 //			arrive_num<-arrive_num+1;
 //		}
 		if (use_road=nil or is_arrive){
-			write("最終地点:"+self.bicycle_point);
+			write("最終地点:"+self.location);
 			do die;
 		}
 	}
@@ -283,12 +284,12 @@ species bicycle{
 //		move_vector<-move_vector*0.1;
 //		write("move_vector:"+move_vector);
 //		write("エージェントの速度:"+norm(move_vector)*(1/step)+"m/s");
-		bicycle_point<-bicycle_point+move_vector;
+		location<-location+move_vector;
 		shape<-polygon([
-			bicycle_point + {-bicycle_length/2, -bicycle_width/2},
-		    bicycle_point + {bicycle_length/2, -bicycle_width/2},
-		    bicycle_point + {bicycle_length/2, bicycle_width/2},
-		    bicycle_point + {-bicycle_length/2, bicycle_width/2}
+			location + {-bicycle_length/2, -bicycle_width/2},
+		    location + {bicycle_length/2, -bicycle_width/2},
+		    location + {bicycle_length/2, bicycle_width/2},
+		    location + {-bicycle_length/2, bicycle_width/2}
 		]);
 	}
 	
@@ -298,7 +299,7 @@ species bicycle{
 		write("-----ここから-----"+self.color);
 		do check_finish;
 		do move;
-		write("self:場所"+self.bicycle_point);
+		write("self:場所"+self.location);
 		write("生まれた時間:"+self.spawn_time);
 		write("*****現在の時刻******"+time);
 		write("---------ここまで---------"+self.color);
@@ -311,7 +312,7 @@ species bicycle{
 	
 
 	aspect base{
-		draw shape color:self.color at:bicycle_point;
+		draw shape color:self.color at:location;
 	}
 }
 

@@ -18,7 +18,10 @@ species bicycle_road{
 	init{
 		width<-width*scale;
 		shape<- polygon([self.start_p,self.start_p+{self.length,0},self.start_p+{self.length,self.width},start_p+{0,width}]);
+		write("bicy_rのshape:"+shape);
 	}
+	
+
 	
 	aspect base{
 		

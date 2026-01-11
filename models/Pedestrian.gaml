@@ -18,7 +18,7 @@ import "Pedestrian_road.gaml"
 species pedestrian skills:[pedestrian]{
 	point d;	//目的地
 	rgb color<-#purple;
-	float r<-0.8;
+	float r<-0.9;  //半径30cmとする
 	list<point> start_list<-[{0,29},{100,29},{0,73},{100,73}];
 	float speed;
 //	one_of(pedestrian_road).free_space

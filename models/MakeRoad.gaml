@@ -88,7 +88,19 @@ species make_road{
 			length:100,
 			start_p:start+{0,bicy_s}
 		];
-	do die;
+	
+	}
+	
+	float bicycle_start{
+		if(sholder>0){	//路肩走行
+			return (center_line/2+road_width)*scale;
+		}else if(bicycle_line>0){	//自転車レーン
+			return (center_line/2+road_width+sholder)*scale;
+		}else if(bicy_l>0){	//自転車専用道
+			return (center_line/2+road_width+sholder+g_l)*scale;
+		}else if(walk_bi_l>0){	//自転車歩行者道
+			return (center_line/2+road_width+sholder+g_l+green_l)*scale;
+		}
 	}
 }
 
@@ -146,13 +158,27 @@ experiment road_test3 type:gui{
 			walk_l:0,
 			walk_bi_l:4
 		];
+		create bicycle with:[
+			location:{0,34},
+			move_vector:{2,0},
+			color:#black,
+			target_point:{100,34}
+		];
+		create bicycle with:[
+			location:{100,27},
+			move_vector:{-2,0},
+			color:#black,
+			target_point:{0,26}
+		];
 		write("bi_r"+one_of(bicycle_road).shape);
+		write("to_bi_r"+one_of(make_road).bicycle_start());
 	}
 	output{
     display d type: opengl background:#cornsilk{
       species road aspect: base;
       species pedestrian_road aspect:base;
       species bicycle_road aspect:base;
+      species bicycle aspect:base;
     }
   }
 }
