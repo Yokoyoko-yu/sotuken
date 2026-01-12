@@ -147,7 +147,7 @@ experiment main4 type:gui{
     		create bicycle with:[
 			location:{0,37},
 			move_vector:{2,0},
-			color:#black,
+			color:#white,
 			target_point:{100,37}
 		];
 		
@@ -168,17 +168,17 @@ experiment main4 type:gui{
 
 	
     //左下
-    reflex when:every(100#cycle){
-    	if(rnd(1,107)=107){
-    		create bicycle number:1{
-    			float bicy_p<-50+bicycle_shift+rnd(0,bi_r_length);
-    			location<-{0,bicy_p};
-    			move_vector<-{2,0};
-    			color<-#black;
-    			target_point<-{100,bicy_p};
-    		}	
-    	}
-    }
+//    reflex when:every(100#cycle){
+//    	if(rnd(1,107)=107){
+//    		create bicycle number:1{
+//    			float bicy_p<-50+bicycle_shift+rnd(0,bi_r_length);
+//    			location<-{0,bicy_p};
+//    			move_vector<-{2,0};
+//    			color<-#white;
+//    			target_point<-{100,bicy_p};
+//    		}	
+//    	}
+//    }
     //右下
     reflex when:every(100#cycle){
     	if(rnd(1,5)=4){
@@ -187,7 +187,7 @@ experiment main4 type:gui{
     		write("Aaaaaaaaaaaa"+bicy_p);
     		location<-{100,bicy_p};
    			move_vector<-{-2,0};
-    		color<-#black;
+    		color<-#white;
     		target_point<-{0,bicy_p};
    		}	
     	}

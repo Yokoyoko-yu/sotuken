@@ -26,7 +26,7 @@ global{
 	float bi_r_length;
 	intersection o;
 	intersection d;
-	float step<-0.01#s;
+	float step<-0.1#s;
 }
 
 experiment main1 type:gui{
@@ -67,15 +67,24 @@ experiment main1 type:gui{
 		write("road:"+road);
     	create car number: 1 {
 	      location <- o.location;
+	      start_loc<-{0,50};
 	      current_path <- compute_path(graph: road_network, nodes: [o,d]);
 	      color<-#blue;
     	}
     	
     	create car number:1{
     		location<-d.location;
+    		start_loc<-{100,50};
     		current_path<-compute_path(graph:road_network,nodes:[d,o]);
     		color<-#green;
     	}
+    	
+//    	create bicycle number:1{
+//    		location<-{100,37};
+//   			move_vector<-{-0.5,0};
+//    		color<-#white;
+//    		target_point<-{0,37};
+//    	}
     	    	
 	}
 	
@@ -143,12 +152,13 @@ experiment main1 type:gui{
 	reflex when:every(100#cycle){
 		if(rnd(1,5)=4){
     		create bicycle number:1{
-    			float bicy_p<-50-bicycle_shift-rnd(0,bi_r_length);
+    			avoid_list<-["car"];
+    			float bicy_p<-50-bicycle_shift-rnd(0,1.5); //例外
     			
-    			location<-{0,bicy_p};
+    			location<-{0,40};
     			move_vector<-{0.5,0};
     			color<-#white;
-    			target_point<-{100,bicy_p};
+    			target_point<-{100,40};
     		}	
 		}
     }
@@ -159,10 +169,10 @@ experiment main1 type:gui{
 		create bicycle number:1{
     		float bicy_p<-50+bicycle_shift+rnd(0,bi_r_length);
     		write("Aaaaaaaaaaaa"+bicy_p);
-    		location<-{100,bicy_p};
+    		location<-{100,62};
    			move_vector<-{-0.5,0};
     		color<-#white;
-    		target_point<-{0,bicy_p};
+    		target_point<-{0,62};
    		}	
     	}
     }

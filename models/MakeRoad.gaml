@@ -77,17 +77,37 @@ species make_road{
 		}
 		bicy_s<-bicy_s*scale;
 		//自転車上側
-		create bicycle_road with:[
-			width:max(self.sholder,self.bicycle_line,self.bicy_l,walk_bi_l),
+		//路肩走行の時
+		if(self.sholder>0){
+			//上側
+				create bicycle_road with:[
+				width:(self.sholder+self.road_width),
+				length:100,
+				start_p:start-{0,(self.sholder+self.road_width+center_line/2)*scale}
+			];
+			//下側
+			create bicycle_road with:[
+				width:(self.sholder+self.road_width),
+				length:100,
+				start_p:start+{0,(center_line/2)*scale}
+			];
+		
+		}else{
+			//上側
+			create bicycle_road with:[
+			width:max(self.sholder,self.bicycle_line,self.bicy_l,walk_bi_l),//どれか一つしか存在しないためmaxで取得できる
 			length:100,
 			start_p:start-{0,bicy_s+max(self.sholder,self.bicycle_line,self.bicy_l,walk_bi_l)*scale}
-		];
-		//自転車下側
-		create bicycle_road with:[
-			width:max(self.sholder,self.bicycle_line,self.bicy_l,walk_bi_l),
-			length:100,
-			start_p:start+{0,bicy_s}
-		];
+			];
+			//下側
+			create bicycle_road with:[
+				width:max(self.sholder,self.bicycle_line,self.bicy_l,walk_bi_l),
+				length:100,
+				start_p:start+{0,bicy_s}
+			];
+		}
+		
+		
 	
 	}
 	

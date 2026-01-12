@@ -99,35 +99,41 @@ experiment main5 type:gui{
 	}
 	
 	//左上
-	reflex when:every(4000#cycle){
+	reflex when:every(400#cycle){
     		create pedestrian number:1{
     		speed<-0.7;
     		d<-{100,29};
+    		//回避するもののリスト
+    		pedestrian_species <- [pedestrian,bicycle];
+    		
     		location<-{0,50-walk_shift-rnd(0,max(walk_length-1),1)};
     	}
     	}
     //右上
-    reflex when:every(4000#cycle){
+    reflex when:every(400#cycle){
     	create pedestrian number:1{
     	speed<-0.7;
    		d<-{0,29};
+   		pedestrian_species <- [pedestrian,bicycle];
    		color<-#yellow;
     	location<-{100,50-walk_shift-rnd(0,max(walk_length-1),1)};
     	}
     }
     //左下
-    	reflex when:every(4000#cycle){
+    	reflex when:every(400#cycle){
     		create pedestrian number:1{
     		speed<-0.7;
     		d<-{100,73};
+    		pedestrian_species <- [pedestrian,bicycle];
     		location<-{0,50+walk_shift+rnd(0,max(walk_length-1),1)};
     	}
     	}
     //右下
-      reflex when:every(4000#cycle){
+      reflex when:every(400#cycle){
     	create pedestrian number:1{
     	speed<-0.7;
    		d<-{0,73};
+    	pedestrian_species <- [pedestrian,bicycle];
    		color<-#yellow;
     	location<-{100,50+walk_shift+rnd(0,max(walk_length-1),1)};
     	}
@@ -152,9 +158,10 @@ experiment main5 type:gui{
     reflex when:every(100#cycle){
     	if(rnd(1,5)=4){
     		create bicycle with:[
+    		avoid_list:["pedestrian"],
 			location:{0,37},
 			move_vector:{0.5,0},
-			color:#black,
+			color:#white,
 			target_point:{100,37}
 		];
 		
@@ -165,10 +172,11 @@ experiment main5 type:gui{
     reflex when:every(100#cycle){
     	if(rnd(1,107)=107){
     		create bicycle number:1{
+    			avoid_list<-["pedestrian"];
     			float bicy_p<-50-bicycle_shift-rnd(0,bi_r_length);
     			location<-{100,bicy_p};
     			move_vector<-{-0.5,0};
-    			color<-#black;
+    			color<-#white;
     			target_point<-{0,bicy_p};
     		}	
     	}
@@ -179,10 +187,11 @@ experiment main5 type:gui{
     reflex when:every(100#cycle){
     	if(rnd(1,5)=4){
     		create bicycle number:1{
+    			avoid_list<-["pedestrian"];
     			float bicy_p<-50+bicycle_shift+rnd(0,bi_r_length);
     			location<-{0,bicy_p};
     			move_vector<-{0.5,0};
-    			color<-#black;
+    			color<-#white;
     			target_point<-{100,bicy_p};
     		}	
     	}
@@ -191,11 +200,12 @@ experiment main5 type:gui{
     reflex when:every(100#cycle){
     	if(rnd(1,5)=4){
 		create bicycle number:1{
+			avoid_list<-["pedestrian"];
     		float bicy_p<-50+bicycle_shift+rnd(0,bi_r_length);
     		write("Aaaaaaaaaaaa"+bicy_p);
     		location<-{100,bicy_p};
    			move_vector<-{-0.5,0};
-    		color<-#black;
+    		color<-#white;
     		target_point<-{0,bicy_p};
    		}	
     	}

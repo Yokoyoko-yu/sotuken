@@ -21,6 +21,8 @@ species pedestrian skills:[pedestrian]{
 	float r<-0.9;  //半径30cmとする
 	list<point> start_list<-[{0,29},{100,29},{0,73},{100,73}];
 	float speed;
+	//一つ前の位置座表
+	
 //	one_of(pedestrian_road).free_space
 	init{
 		write("現在地"+location);
@@ -31,7 +33,6 @@ species pedestrian skills:[pedestrian]{
 		 pedestrian_model <- "advanced";      // まずは高度版SFM
 		 avoid_other <- true;                 // 他歩行者を避ける
 		
-		 pedestrian_species <- [pedestrian];  // ★重要：誰を「歩行者」として扱うか
 		 pedestrian_consideration_distance <- 5.0#m; // 検出距離（大きめに）
 		 minimal_distance <- 0.8#m;           // 最小距離（好みで調整）
 
@@ -43,9 +44,10 @@ species pedestrian skills:[pedestrian]{
 	reflex walk when:pedestrian_network != nil{
 		do compute_virtual_path pedestrian_graph: pedestrian_network target: d;
 		do walk;
+		
 	}
 	
-	reflex delete when: time>1.0 and (self.location in start_list){
+	reflex delete when: time>1.0 and self.current_waypoint=nil{
 		write("歩行者を削除します");
 		do die;
 	}

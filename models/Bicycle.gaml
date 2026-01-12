@@ -18,12 +18,19 @@ global{
 	float bicycle_width<-1.2;	//0.5m
 	float bicycle_length<-5.4;	//1.8m
 	float tau<-5#s;
-	float A_bike<-0.8;
-	float B_bike<-0.7;
 	float lambda<-0.1; //背後から受ける斥力の重み付け
 	float road_p;	//道路の境界から受ける斥力の重みづけ
 	float A_road<-1.0;
 	float B_road<-0.7;
+	//自動車用
+	float A_car<-0.5;
+	float B_car<-0.4;
+	//自転車用
+	float A_bike<-0.8;
+	float B_bike<-0.7;
+	//歩行者用
+	float A_ped<-0.4;
+	float B_ped<-0.3;
 	//計測用
 	list <float> dead_list<-[0.0];
 	float arrive_sum<-0.0;
@@ -31,6 +38,7 @@ global{
 }
 
 species bicycle{
+	list <string> avoid_list<-[]; //自転車、車、歩行者のうち回避するものをstringでリストに入れる
 	bool left_start; 
 //	make_roadで使用するもの(目的地によって変容しうる変数)
 	//走行中の道路
@@ -117,40 +125,64 @@ species bicycle{
 	}
 	
 	
-	//影響を受ける範囲にいるエージェント群をまとめる
-	list<bicycle> affect_bicycles{
-		list<bicycle> all_bicycles <- bicycle where (self != each);
-		list<bicycle> circle_bicycles<-all_bicycles where((each distance_to self)<25#m);
+	//影響を受ける範囲にいる自転車群をまとめる
+	list<agent> affect_agents{
+		list<agent> all_agents <- (bicycle where (self != each)) as list;
+		if ("pedestrian" in avoid_list){
+			all_agents<- all_agents+(pedestrian as list);
+		}
+		if ("car" in avoid_list){
+			all_agents<- all_agents+(car as list);
+		}
+		list<agent> circle_agents<-all_agents where((each distance_to self)<25#m);
 	//双曲線内にいるエージェント
-		list<bicycle> affect_list<-circle_bicycles where(
+		list<agent> affect_list<-circle_agents where(
 			((((move_vector*(self.location-each.location))*(move_vector*(self.location-each.location)))/(sqrt(3)/2)*(sqrt(3)/2))
 			-(((move_vector*(self.location-each.location))*(move_vector*(self.location-each.location)))/(1/2)*(1/2)))>(-1)
 		);
-
+		write("-----------"+affect_list);
 		return affect_list;
 	}
 	
 	//近接エージェントから受ける斥力を一つ一つ計算し、合計した斥力をベクトルで返す
 	point add_repulsion{
-		list<bicycle> calculate_list<-affect_bicycles();
+		list<agent> calculate_list<-affect_agents();
 		point repulsion_vector<-{0,0};
 		self.as_p<-{0,0};
 		loop i over: calculate_list{
-			repulsion_vector<-repulsion_vector+calc_repulsion_agent(i);
-			self.as_p<-self.as_p+repulsion_assist(i);
-			write("あしすとぱわー"+self.as_p);
+			//自転車の時
+			if(i is bicycle){
+				repulsion_vector<-repulsion_vector+calc_repulsion_bicycle(bicycle(i));
+				self.as_p<-self.as_p+repulsion_assist(bicycle(i));
+				write("あしすとぱわー"+self.as_p);
+			}
+			//自動車の時
+			if(i is car){
+				point cal_car_power<-calc_repulsion_car(car(i));
+				repulsion_vector<-repulsion_vector+cal_car_power;
+				write("車から受ける斥力"+cal_car_power);
+			}
+			
+			//歩行者の時
+			if(i is pedestrian){
+				point cal_p_power<-calc_repulsion_pedestrian(pedestrian(i));
+				repulsion_vector<-repulsion_vector+cal_p_power;
+				write("歩行者から受ける斥力"+cal_p_power);
+			}
+			
+
 		}
 		return repulsion_vector;
 	}
 	
 	//selfから最も近い点を返す 1つ目の配列がself
-	list<point> return_nearest_point(bicycle a_bicycle){
-		list<point> v1<-a_bicycle.shape closest_points_with(self.shape);
+	list<point> return_nearest_point(agent a_agent){
+		list<point> v1<-a_agent.shape closest_points_with(self.shape);
 		return v1;
 	}
 	
-	//一つのエージェントから受ける斥力を計算する
-	point calc_repulsion_agent(bicycle a_bicycle){
+	//一つの自転車から受ける斥力を計算する
+	point calc_repulsion_bicycle(bicycle a_bicycle){
 		point self_n_point;
 		point opponent_n_point;
 		list <point> nl<-return_nearest_point(a_bicycle);
@@ -171,21 +203,77 @@ species bicycle{
 		point e<-((d_v/norm(d_v))+((d_v-relative_speed)/norm((d_v-relative_speed))))*(0.5);
 		float b<-0.5*(sqrt((norm(d_v)+norm(d_v-relative_speed))*(norm(d_v)+norm(d_v-relative_speed))-(norm(relative_speed)*norm(relative_speed))));//Δtは反応速度
 		b<-max(0.000000001,b);
-		point g<-e*(A_bike*(max(0.1,exp(-b/B_bike)))*((norm(d_v)+norm(d_v-relative_speed))/(2*b)));
-//		write("g:"+g);
+		point g<-e*(A_ped*(max(0.1,exp(-b/B_ped)))*((norm(d_v)+norm(d_v-relative_speed))/(2*b)));
 		write("b:"+b);
-//		write("exp(-b/B_alfa)"+exp(-b/B_alfa));
-//		write("(norm(d)+norm(d-relative_speed))"+(norm(d)+norm(d-relative_speed))/(2*b));
-		
+
 		return g*ganma;
 	}
+	
+		//一つの歩行者から受ける斥力を計算する
+		point calc_repulsion_pedestrian(pedestrian a_pedestrian){
+			point self_n_point;
+			point opponent_n_point;
+			
+			list <point> nl<-return_nearest_point(a_pedestrian);
+			if(nl[0]!=nl[1]){
+			self_n_point<-nl[1];
+			opponent_n_point<-nl[0];
+			}else{
+				self_n_point<-self.location;
+				opponent_n_point<-a_pedestrian.location;
+			}
+			
+			//エージェントから主体までのベクトルd
+			point d_v<-(self_n_point-opponent_n_point);
+			//φを求める
+			float phi<-angle_between(self_n_point,opponent_n_point-self_n_point,self.move_vector);
+			float ganma<- lambda+(1-lambda)*((1+cos(phi))/2);
+			point relative_speed<-a_pedestrian.velocity-self.move_vector;//論文中のyの式にあたる
+			point e<-((d_v/norm(d_v))+((d_v-relative_speed)/norm((d_v-relative_speed))))*(0.5);
+			float b<-0.5*(sqrt((norm(d_v)+norm(d_v-relative_speed))*(norm(d_v)+norm(d_v-relative_speed))-(norm(relative_speed)*norm(relative_speed))));//Δtは反応速度
+			b<-max(0.000000001,b);
+			point g<-e*(A_ped*(max(0.1,exp(-b/B_ped)))*((norm(d_v)+norm(d_v-relative_speed))/(2*b)));
+			write("b:"+b);
+	
+			return g*ganma;
+			}
+		
+		//一つの車から受ける斥力を計算する
+		point calc_repulsion_car(car a_car){
+		point self_n_point;
+		point opponent_n_point;
+		
+		list <point> nl<-return_nearest_point(a_car);
+		if(nl[0]!=nl[1]){
+		self_n_point<-nl[1];
+		opponent_n_point<-nl[0];
+		}else{
+			self_n_point<-self.location;
+			opponent_n_point<-a_car.location;
+		}
+
+		//エージェントから主体までのベクトルd
+		point d_v<-(self_n_point-opponent_n_point);
+		//φを求める
+		float phi<-angle_between(self_n_point,opponent_n_point-self_n_point,self.move_vector);
+		float ganma<- lambda+(1-lambda)*((1+cos(phi))/2);
+		point relative_speed<-a_car.move_vector-self.move_vector;//論文中のyの式にあたる
+		point e<-((d_v/norm(d_v))+((d_v-relative_speed)/norm((d_v-relative_speed))))*(0.5);
+		float b<-0.5*(sqrt((norm(d_v)+norm(d_v-relative_speed))*(norm(d_v)+norm(d_v-relative_speed))-(norm(relative_speed)*norm(relative_speed))));//Δtは反応速度
+		b<-max(0.000000001,b);
+		point g<-e*(A_car*(max(0.1,exp(-b/B_car)))*((norm(d_v)+norm(d_v-relative_speed))/(2*b)));
+		write("b:"+b);
+
+		return g*ganma;
+	}
+	
 	
 	//斥力がmove_vectorと同一方向にしか働かないか判定し、回避
 	point repulsion_assist(bicycle a_bicycle){
 
 		if (norm(self.agent_p)!=0){
 //			float naiseki<-(self.agent_p/norm(self.agent_p))*(self.move_vector/norm(self.move_vector));
-			float naiseki<-(calc_repulsion_agent(a_bicycle)/norm(calc_repulsion_agent(a_bicycle)))*(self.move_vector/norm(self.move_vector));
+			float naiseki<-(calc_repulsion_bicycle(a_bicycle)/norm(calc_repulsion_bicycle(a_bicycle)))*(self.move_vector/norm(self.move_vector));
 //			write("エージェント"+a_bicycle.color+"から受ける斥力"+calc_repulsion_agent(a_bicycle));
 			//内積が-1から誤差10**-2以内であれば衝突検知
 			float naiseki_error<-naiseki+1;
