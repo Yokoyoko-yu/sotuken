@@ -13,7 +13,11 @@ model Pedestrian
 import "Intersection.gaml"
 import "Pedestrian_road.gaml"
 
-
+global{
+	//自転車との最近接距離の平均
+	float ave_p_nearest_c;
+	float p_num; //自転車の母数
+}
 
 species pedestrian skills:[pedestrian]{
 	point d;	//目的地
@@ -22,7 +26,7 @@ species pedestrian skills:[pedestrian]{
 	list<point> start_list<-[{0,29},{100,29},{0,73},{100,73}];
 	float speed;
 	//一つ前の位置座表
-	
+	float p_nearest_b<-150.0;
 //	one_of(pedestrian_road).free_space
 	init{
 		write("現在地"+location);
@@ -49,7 +53,23 @@ species pedestrian skills:[pedestrian]{
 	
 	reflex delete when: time>1.0 and self.current_waypoint=nil{
 		write("歩行者を削除します");
+		ave_p_nearest_c<-ave_p_nearest_c+(self.p_nearest_b)/scale;
+		p_num<-p_num+1;
 		do die;
+	}
+	
+	reflex calc_nearest{
+		list<bicycle> near_bi<-(bicycle)as list;
+		loop bi over:near_bi{
+			float p_d<-max(0,(bi distance_to self)-r);
+			if(p_nearest_b>p_d){
+				p_nearest_b<-p_d;
+			}
+		write("999999999999");
+		write("自転車との距離:"+self.p_nearest_b);
+		write("999999999999");
+		write("p_num"+p_num);
+		}
 	}
 	aspect base{
 		draw circle(r) color:self.color at:self.location;

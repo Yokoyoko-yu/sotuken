@@ -25,6 +25,18 @@ global{
 	float bi_r_length;
 	intersection o;
 	intersection d;
+	//平均速度
+	float ave_b;
+	int ave_b_count; //母数のカウント用
+	float ave_ped;
+	int ave_ped_count;
+	float step<-0.1#s;
+	//最近接距離
+	//自転車目線の自転車との最近接距離の平均
+	float nearest_b;
+	//歩行者目線の自転車との最近接距離
+	float nearest_ped;
+	
 }
 
 experiment main4 type:gui{
@@ -141,6 +153,7 @@ experiment main4 type:gui{
 //    		}	
 ////    	}
 //    }
+
     //左上
     reflex when:every(100#cycle){
     	if(rnd(1,5)=4){
@@ -153,6 +166,7 @@ experiment main4 type:gui{
 		
 		}	
     }
+    
     //右上
 //    reflex when:every(100#cycle){
 //    	if(rnd(1,107)=107){
@@ -186,10 +200,58 @@ experiment main4 type:gui{
     		float bicy_p<-50+bicycle_shift+rnd(0,bi_r_length);
     		write("Aaaaaaaaaaaa"+bicy_p);
     		location<-{100,bicy_p};
-   			move_vector<-{-2,0};
+   			move_vector<-{-0.5,0};
     		color<-#white;
     		target_point<-{0,bicy_p};
    		}	
+    	}
+    }
+    
+    reflex when:every(1#cycle){
+    	if(!empty(bicycle)){
+    		loop b over:bicycle{
+    			float v<-norm(b.move_vector);
+    			ave_b_count<-ave_b_count+1;
+    			ave_b<-ave_b+v;
+    		}
+    	}
+    	
+    	if(ave_b_count>0){
+    		write("******自転車"+(ave_b/ave_b_count)/scale*(1/step)+"m/s*****");
+    	}
+    	if(!empty(pedestrian)){
+    		loop p over:pedestrian{
+    			float v<-norm(p.velocity);
+    			ave_ped<-ave_ped+v;
+    			ave_ped_count<-ave_ped_count+1;
+    		}
+    	}
+    	if(ave_ped_count>0){
+    		write("******歩行者"+ave_ped/ave_ped_count+"m/s*****");
+    	}
+    }
+    
+    reflex when:every(1#cycle){
+    	if(!empty(bicycle)){
+    		loop b over:bicycle{
+    			float v<-norm(b.move_vector);
+    			ave_b_count<-ave_b_count+1;
+    			ave_b<-ave_b+v;
+    		}
+    	}
+    	
+    	if(ave_b_count>0){
+    		write("******自転車"+(ave_b/ave_b_count)/scale*(1/step)+"m/s*****");
+    	}
+    	if(!empty(pedestrian)){
+    		loop p over:pedestrian{
+    			float v<-norm(p.velocity);
+    			ave_ped<-ave_ped+v;
+    			ave_ped_count<-ave_ped_count+1;
+    		}
+    	}
+    	if(ave_ped_count>0){
+    		write("******歩行者"+ave_ped/ave_ped_count+"m/s*****");
     	}
     }
 	
@@ -203,6 +265,7 @@ experiment main4 type:gui{
       species pedestrian aspect:base;
       species bicycle aspect:base;
       species bicycle_road aspect:base;
+     
     }
   }
 }

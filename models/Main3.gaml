@@ -26,7 +26,15 @@ global{
 	float bi_r_length;
 	intersection o;
 	intersection d;
+	float step<-0.1#s;
+	//平均速度
+	float ave_b;
+	int ave_b_count; //母数のカウント用
+	float ave_ped;
+	int ave_ped_count;//母数のカウント用
+	
 }
+
 
 experiment main3 type:gui{
 	init{
@@ -177,6 +185,30 @@ experiment main3 type:gui{
     		color<-#white;
     		target_point<-{0,bicy_p};
    		}	
+    	}
+    }
+    
+    reflex when:every(1#cycle){
+    	if(!empty(bicycle)){
+    		loop b over:bicycle{
+    			float v<-norm(b.move_vector);
+    			ave_b_count<-ave_b_count+1;
+    			ave_b<-ave_b+v;
+    		}
+    	}
+    	
+    	if(ave_b_count>0){
+    		write("******自転車"+(ave_b/ave_b_count)/scale*(1/step)+"m/s*****");
+    	}
+    	if(!empty(pedestrian)){
+    		loop p over:pedestrian{
+    			float v<-norm(p.velocity);
+    			ave_ped<-ave_ped+v;
+    			ave_ped_count<-ave_ped_count+1;
+    		}
+    	}
+    	if(ave_ped_count>0){
+    		write("******歩行者"+ave_ped/ave_ped_count+"m/s*****");
     	}
     }
 	

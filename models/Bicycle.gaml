@@ -35,6 +35,15 @@ global{
 	list <float> dead_list<-[0.0];
 	float arrive_sum<-0.0;
 	int arrive_num<-0;
+	//最近接距離
+	//自転車目線の自動車との最近接距離の平均
+	float ave_b_nearest_c;	
+	//自転車目線の自転車との最近接距離の平均
+	float ave_b_nearest_b;
+	//歩行者目線の自転車との最近接距離
+	float ave_p_nearest_b;
+	float b_num;//自転車の母数
+	float c_num;//歩行者の母数
 }
 
 species bicycle{
@@ -64,8 +73,12 @@ species bicycle{
 	//回避ベクトルが生まれなかった時のための力
 	point as_p;
 	//スポーンした時間
-	float spawn_time;
-	
+	float spawn_time<-time;
+	//車間距離
+	//自動車との最近接距離距離
+	float b_nearest_car<-150#m;
+	//自転車との最近接距離
+	float b_nearest_bi<-150.0;
 	
 	init{
 		//shapeに反映
@@ -78,6 +91,7 @@ species bicycle{
 		//走行中の道路
 		use_road<-one_of(bicycle_road where(self overlaps each));
 		self.spawn_time<-time;
+
 	}
 	
 	//目標地点から受ける引力の計算(単位はm/s)
@@ -140,7 +154,7 @@ species bicycle{
 			((((move_vector*(self.location-each.location))*(move_vector*(self.location-each.location)))/(sqrt(3)/2)*(sqrt(3)/2))
 			-(((move_vector*(self.location-each.location))*(move_vector*(self.location-each.location)))/(1/2)*(1/2)))>(-1)
 		);
-		write("-----------"+affect_list);
+//		write("-----------"+affect_list);
 		return affect_list;
 	}
 	
@@ -154,25 +168,53 @@ species bicycle{
 			if(i is bicycle){
 				repulsion_vector<-repulsion_vector+calc_repulsion_bicycle(bicycle(i));
 				self.as_p<-self.as_p+repulsion_assist(bicycle(i));
-				write("あしすとぱわー"+self.as_p);
+//				write("あしすとぱわー"+self.as_p);
 			}
 			//自動車の時
 			if(i is car){
 				point cal_car_power<-calc_repulsion_car(car(i));
 				repulsion_vector<-repulsion_vector+cal_car_power;
-				write("車から受ける斥力"+cal_car_power);
+//				write("車から受ける斥力"+cal_car_power);
+
 			}
 			
 			//歩行者の時
 			if(i is pedestrian){
 				point cal_p_power<-calc_repulsion_pedestrian(pedestrian(i));
 				repulsion_vector<-repulsion_vector+cal_p_power;
-				write("歩行者から受ける斥力"+cal_p_power);
+//				write("歩行者から受ける斥力"+cal_p_power);
 			}
 			
 
 		}
 		return repulsion_vector;
+	}
+	
+	reflex calc_nearest{
+		list<agent> near_agents<-car as list;
+		near_agents<-near_agents+(bicycle where(each!=self));
+		list<agent> circle_agents<-near_agents where((each distance_to self)<60#m);
+		if(!empty(near_agents)){
+		loop age over:near_agents{
+			if(age is bicycle){
+				write("-----------------");
+				float d_b<-(age distance_to self);
+				write("自転車との距離"+d_b);
+				write("-----------------");
+				if(self.b_nearest_bi>d_b){
+					self.b_nearest_bi<-d_b;
+				}
+			}
+			else if(age is car){
+				float b_c<-(age distance_to self);
+				write("b_c"+b_c);
+				if(self.b_nearest_car>b_c){
+					b_nearest_car<-b_c;
+				}
+			}
+		}
+		
+		}
 	}
 	
 	//selfから最も近い点を返す 1つ目の配列がself
@@ -204,7 +246,7 @@ species bicycle{
 		float b<-0.5*(sqrt((norm(d_v)+norm(d_v-relative_speed))*(norm(d_v)+norm(d_v-relative_speed))-(norm(relative_speed)*norm(relative_speed))));//Δtは反応速度
 		b<-max(0.000000001,b);
 		point g<-e*(A_ped*(max(0.1,exp(-b/B_ped)))*((norm(d_v)+norm(d_v-relative_speed))/(2*b)));
-		write("b:"+b);
+//		write("b:"+b);
 
 		return g*ganma;
 	}
@@ -233,7 +275,7 @@ species bicycle{
 			float b<-0.5*(sqrt((norm(d_v)+norm(d_v-relative_speed))*(norm(d_v)+norm(d_v-relative_speed))-(norm(relative_speed)*norm(relative_speed))));//Δtは反応速度
 			b<-max(0.000000001,b);
 			point g<-e*(A_ped*(max(0.1,exp(-b/B_ped)))*((norm(d_v)+norm(d_v-relative_speed))/(2*b)));
-			write("b:"+b);
+//			write("b:"+b);
 	
 			return g*ganma;
 			}
@@ -262,7 +304,7 @@ species bicycle{
 		float b<-0.5*(sqrt((norm(d_v)+norm(d_v-relative_speed))*(norm(d_v)+norm(d_v-relative_speed))-(norm(relative_speed)*norm(relative_speed))));//Δtは反応速度
 		b<-max(0.000000001,b);
 		point g<-e*(A_car*(max(0.1,exp(-b/B_car)))*((norm(d_v)+norm(d_v-relative_speed))/(2*b)));
-		write("b:"+b);
+//		write("b:"+b);
 
 		return g*ganma;
 	}
@@ -287,25 +329,25 @@ species bicycle{
 				
 				//位置が高いほうが上へよける
 				if(self.location.y<a_bicycle.location.y){	//自分が上の時
-					write("私が上");
+//					write("私が上");
 					if(self.move_vector.x>0){ //yは負
 						//左へ
-						write("左に回避1"+{y1,-x1}*0.1);
+//						write("左に回避1"+{y1,-x1}*0.1);
 						return {y1,-x1}*0.01;
 					}else{
 						//右へ
-						write("右に回避1"+{-y1,x1}*0.1);
+//						write("右に回避1"+{-y1,x1}*0.1);
 						return {-y1,x1}*0.01;
 					}
 				}else{	//自分が下の時yは正
-				write("私がした");
+//				write("私がした");
 					if(self.move_vector.x>0){
 						//右へ
-						write("右に回避2"+{-y1,x1}*0.1);
+//						write("右に回避2"+{-y1,x1}*0.1);
 						return {-y1,x1}*0.01;
 					}else{
 						//左へ
-						write("左に回避2"+{y1,-x1}*0.1);
+//						write("左に回避2"+{y1,-x1}*0.1);
 						return {y1,-x1}*0.01;
 					}
 				}
@@ -322,7 +364,7 @@ species bicycle{
 	action check_finish{
 		use_road<-one_of(bicycle_road where(self overlaps each));
 		bool is_arrive<-overlaps(self.shape,self.target_point);
-		write("目的地に到着した？"+is_arrive);
+//		write("目的地に到着した？"+is_arrive);
 //		use_road_point<-use_road.shape.points;
 
 		if(is_arrive){
@@ -340,6 +382,16 @@ species bicycle{
 //		}
 		if (use_road=nil or is_arrive){
 			write("最終地点:"+self.location);
+			//自転車の最近接距離を集計
+			if(self.b_nearest_car<100#m){
+				ave_b_nearest_c<-ave_b_nearest_c+((self.b_nearest_car)/scale);
+			}
+			if(self.b_nearest_bi<100#m){
+				ave_b_nearest_b<-ave_b_nearest_b+(self.b_nearest_bi/scale);
+			}
+			
+			b_num<-b_num+1;
+
 			do die;
 		}
 	}
@@ -348,12 +400,12 @@ species bicycle{
 	action move{
 	
 		//力をm/sに変換
-		write("目標への引力:"+self.gra_p+"m/s");
-		write("自転車から受ける斥力"+self.agent_p+"m/s");
-		write("道路から受ける斥力"+self.road_p+"m/s");	
-		write("アシストの力"+self.as_p+"m/s");
-		write("現在の移動速度:"+self.move_vector*(1/step)+"m/s");
-		write("時速:"+norm(self.move_vector*(1/step))*(3600/1000)+"km/h");
+//		write("目標への引力:"+self.gra_p+"m/s");
+//		write("自転車から受ける斥力"+self.agent_p+"m/s");
+//		write("道路から受ける斥力"+self.road_p+"m/s");	
+//		write("アシストの力"+self.as_p+"m/s");
+//		write("現在の移動速度:"+self.move_vector*(1/step)+"m/s");
+//		write("時速:"+norm(self.move_vector*(1/step))*(3600/1000)+"km/h");
 
 		//引力
 		self.gra_p<-update_gravity();
@@ -384,17 +436,17 @@ species bicycle{
 	
 	
 	reflex move_action{
-		write("-----ここから-----"+self.color);
+//		write("-----ここから-----"+self.color);
 		do check_finish;
 		do move;
-		write("self:場所"+self.location);
-		write("生まれた時間:"+self.spawn_time);
-		write("*****現在の時刻******"+time);
-		write("---------ここまで---------"+self.color);
-		write("到着リスト"+dead_list);
+//		write("self:場所"+self.location);
+//		write("生まれた時間:"+self.spawn_time);
+//		write("*****現在の時刻******"+time);
+//		write("---------ここまで---------"+self.color);
+//		write("到着リスト"+dead_list);
 		if(arrive_num>0 ){
-		write("合計時間"+arrive_sum);
-		write("平均時間:"+arrive_sum/arrive_num);
+//		write("合計時間"+arrive_sum);
+//		write("平均時間:"+arrive_sum/arrive_num);
 		}
 	}
 	

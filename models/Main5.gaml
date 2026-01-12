@@ -28,6 +28,16 @@ global{
 	intersection o;
 	intersection d;
 	float step<-0.1#s;
+	//平均速度
+	float ave_b;
+	int ave_b_count; //母数のカウント用
+	float ave_ped;
+	int ave_ped_count;
+	//最近接距離
+	//自転車目線の自転車との最近接距離の平均
+	float nearest_b;
+	//歩行者目線の自転車との最近接距離
+	float nearest_ped;
 }
 
 experiment main5 type:gui{
@@ -160,7 +170,7 @@ experiment main5 type:gui{
     		create bicycle with:[
     		avoid_list:["pedestrian"],
 			location:{0,37},
-			move_vector:{0.5,0},
+			move_vector:{0.2,0},
 			color:#white,
 			target_point:{100,37}
 		];
@@ -175,7 +185,7 @@ experiment main5 type:gui{
     			avoid_list<-["pedestrian"];
     			float bicy_p<-50-bicycle_shift-rnd(0,bi_r_length);
     			location<-{100,bicy_p};
-    			move_vector<-{-0.5,0};
+    			move_vector<-{-0.2,0};
     			color<-#white;
     			target_point<-{0,bicy_p};
     		}	
@@ -190,7 +200,7 @@ experiment main5 type:gui{
     			avoid_list<-["pedestrian"];
     			float bicy_p<-50+bicycle_shift+rnd(0,bi_r_length);
     			location<-{0,bicy_p};
-    			move_vector<-{0.5,0};
+    			move_vector<-{0.2,0};
     			color<-#white;
     			target_point<-{100,bicy_p};
     		}	
@@ -204,11 +214,45 @@ experiment main5 type:gui{
     		float bicy_p<-50+bicycle_shift+rnd(0,bi_r_length);
     		write("Aaaaaaaaaaaa"+bicy_p);
     		location<-{100,bicy_p};
-   			move_vector<-{-0.5,0};
+   			move_vector<-{-0.2,0};
     		color<-#white;
     		target_point<-{0,bicy_p};
    		}	
     	}
+    }
+    
+    reflex when:every(1#cycle){
+    	if(!empty(bicycle)){
+    		loop b over:bicycle{
+    			float v<-norm(b.move_vector);
+    			ave_b_count<-ave_b_count+1;
+    			ave_b<-ave_b+v;
+    		}
+    	}
+    	
+    	if(ave_b_count>0){
+    		write("******自転車"+(ave_b/ave_b_count)/scale*(1/step)+"m/s*****");
+    	}
+    	if(!empty(pedestrian)){
+    		loop p over:pedestrian{
+    			float v<-norm(p.velocity);
+    			ave_ped<-ave_ped+v;
+    			ave_ped_count<-ave_ped_count+1;
+    		}
+    	}
+    	if(ave_ped_count>0){
+    		write("******歩行者"+ave_ped/ave_ped_count+"m/s*****");
+    	}
+    	
+    	//距離の計測用
+    	if(b_num>0){
+			write("自動車と自転車の距離："+ave_b_nearest_c/b_num+"m");
+			write("自転車間の距離："+ave_b_nearest_b/b_num+"m");
+			write("p_num"+p_num);
+			}
+		if(p_num>0){
+			write("自転車歩行者の平均距離："+ave_p_nearest_c/p_num+"m");
+			}
     }
 	
 	
