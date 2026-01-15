@@ -20,7 +20,6 @@ species car skills:[driving]{
     max_speed <- 60*3#km/#h;
     max_acceleration <- 3.0;
     start_loc<-self.location;
-
   }
   
   
@@ -42,7 +41,7 @@ species car skills:[driving]{
   		do die;
   		}
 	if(judge_x>0){
-		if(self.location distance_to {100,50}<5){
+		if(self.location distance_to {300,50}<5){
 			do die;
 		}
 	}else{

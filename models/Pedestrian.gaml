@@ -24,7 +24,7 @@ species pedestrian skills:[pedestrian]{
 	point d;	//目的地
 	rgb color<-#purple;
 	float r<-0.9;  //半径30cmとする
-	list<point> start_list<-[{0,29},{100,29},{0,73},{100,73}];
+	list<point> start_list<-[{0,29},{300,29},{0,73},{300,73}];
 	float speed;
 	//一つ前の位置座表
 	float p_nearest_b<-150.0;

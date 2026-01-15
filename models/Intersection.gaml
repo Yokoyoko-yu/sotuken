@@ -29,7 +29,7 @@ species road_network_make{
 	init{
 //		create road_make;
 		point A<-{0,50};
-		point B<-{100,50};
+		point B<-{300,50};
 		create make_road with:[
 					start:A,
 					end:B,

@@ -82,13 +82,13 @@ species make_road{
 			//上側
 				create bicycle_road with:[
 				width:(self.sholder+self.road_width),
-				length:100,
+				length:300,
 				start_p:start-{0,(self.sholder+self.road_width+center_line/2)*scale}
 			];
 			//下側
 			create bicycle_road with:[
 				width:(self.sholder+self.road_width),
-				length:100,
+				length:300,
 				start_p:start+{0,(center_line/2)*scale}
 			];
 		
@@ -96,13 +96,13 @@ species make_road{
 			//上側
 			create bicycle_road with:[
 			width:max(self.sholder,self.bicycle_line,self.bicy_l,walk_bi_l),//どれか一つしか存在しないためmaxで取得できる
-			length:100,
+			length:300,
 			start_p:start-{0,bicy_s+max(self.sholder,self.bicycle_line,self.bicy_l,walk_bi_l)*scale}
 			];
 			//下側
 			create bicycle_road with:[
 				width:max(self.sholder,self.bicycle_line,self.bicy_l,walk_bi_l),
-				length:100,
+				length:300,
 				start_p:start+{0,bicy_s}
 			];
 		}
@@ -126,7 +126,7 @@ species make_road{
 
 experiment road_test type:gui{
 	point A<-{0,50};
-	point B<-{100,50};
+	point B<-{300,50};
 	init{
 		create make_road with:[
 			start:A,
@@ -159,7 +159,7 @@ experiment road_test type:gui{
 
 experiment road_test3 type:gui{
 	point A<-{0,50};
-	point B<-{100,50};
+	point B<-{300,50};
 	init{
 		create make_road with:[
 			start:A,
@@ -178,18 +178,18 @@ experiment road_test3 type:gui{
 			walk_l:0,
 			walk_bi_l:4
 		];
-		create bicycle with:[
-			location:{0,34},
-			move_vector:{2,0},
-			color:#black,
-			target_point:{100,34}
-		];
-		create bicycle with:[
-			location:{100,27},
-			move_vector:{-2,0},
-			color:#black,
-			target_point:{0,26}
-		];
+//		create bicycle with:[
+//			location:{0,34},
+//			move_vector:{2,0},
+//			color:#black,
+//			target_point:{300,34}
+//		];
+//		create bicycle with:[
+//			location:{300,27},
+//			move_vector:{-2,0},
+//			color:#black,
+//			target_point:{0,26}
+//		];
 		write("bi_r"+one_of(bicycle_road).shape);
 		write("to_bi_r"+one_of(make_road).bicycle_start());
 	}

@@ -43,7 +43,7 @@ global{
 experiment main1 type:gui{
 	init{
 		point A<-{0,50};
-		point B<-{100,50};
+		point B<-{300,50};
 		create make_road with:[
 					start:A,
 					end:B,
@@ -83,29 +83,10 @@ experiment main1 type:gui{
     			location<-{0,38};
     			move_vector<-{0.5,0};
     			color<-#white;
-    			target_point<-{100,38};
+    			target_point<-{300,38};
     		}	
-    	create car number: 1 {
-	      location <- o.location;
-	      start_loc<-{0,50};
-	      current_path <- compute_path(graph: road_network, nodes: [o,d]);
-	      color<-#blue;
-    	}
-    	
-    	create car number:1{
-    		location<-d.location;
-    		start_loc<-{100,50};
-    		current_path<-compute_path(graph:road_network,nodes:[d,o]);
-    		color<-#green;
-    	}
-    	
-//    	create bicycle number:1{
-//    		location<-{100,45};
-//   			move_vector<-{-0.2,0};
-//    		color<-#green;
-//    		target_point<-{0,45};
-//    	}
-    	    	
+
+    	 	
 	}
 	
 	//車右側
@@ -131,7 +112,7 @@ experiment main1 type:gui{
 		if(rnd(1,344)=4){
 			create pedestrian number:1{
     		speed<-0.36;
-    		d<-{100,29};
+    		d<-{300,29};
     		location<-{0,50-walk_shift-rnd(0,max(walk_length-1),1)};
     		}
 		}
@@ -146,7 +127,7 @@ experiment main1 type:gui{
 	    	speed<-0.36;
 	   		d<-{0,29};
 	   		color<-#yellow;
-	    	location<-{100,50-walk_shift-rnd(0,max(walk_length-1),1)};
+	    	location<-{300,50-walk_shift-rnd(0,max(walk_length-1),1)};
     		}
     	}
 
@@ -156,7 +137,7 @@ experiment main1 type:gui{
     		if(rnd(1,344)=4){
     		create pedestrian number:1{
     		speed<-0.36;
-    		d<-{100,73};
+    		d<-{300,73};
     		location<-{0,50+walk_shift+rnd(0,max(walk_length-1),1)};
     		}
     	}
@@ -168,7 +149,7 @@ experiment main1 type:gui{
     	speed<-0.36;
    		d<-{0,73};
    		color<-#yellow;
-    	location<-{100,50+walk_shift+rnd(0,max(walk_length-1),1)};
+    	location<-{300,50+walk_shift+rnd(0,max(walk_length-1),1)};
     	}	
     	}
 	}
@@ -184,7 +165,7 @@ experiment main1 type:gui{
     			location<-{0,38};
     			move_vector<-{1.16,0};
     			color<-#white;
-    			target_point<-{100,38};
+    			target_point<-{300,38};
     		}	
 		}
     }
@@ -196,7 +177,7 @@ experiment main1 type:gui{
 			avoid_list<-["car"];
     		float bicy_p<-50+bicycle_shift+rnd(0,bi_r_length);
     		write("Aaaaaaaaaaaa"+bicy_p);
-    		location<-{100,62};
+    		location<-{300,62};
    			move_vector<-{-1.16,0};
     		color<-#white;
     		target_point<-{0,62};

@@ -39,7 +39,7 @@ global{
 experiment main3 type:gui{
 	init{
 		point A<-{0,50};
-		point B<-{100,50};
+		point B<-{300,50};
 		create make_road with:[
 					start:A,
 					end:B,
@@ -119,7 +119,7 @@ experiment main3 type:gui{
     		if(rnd(1,344)=4){
 				create pedestrian number:1{
 	    		speed<-0.36;
-	    		d<-{100,29};
+	    		d<-{300,29};
 	    		location<-{0,50-walk_shift-rnd(0,max(walk_length-1),1)};
 	    		
 	    		}
@@ -132,7 +132,7 @@ experiment main3 type:gui{
     	speed<-0.36;
    		d<-{0,29};
    		color<-#yellow;
-    	location<-{100,50-walk_shift-rnd(0,max(walk_length-1),1)};
+    	location<-{300,50-walk_shift-rnd(0,max(walk_length-1),1)};
     	}
     	}
     }
@@ -142,7 +142,7 @@ experiment main3 type:gui{
     		if(rnd(1,344)=4){
 	    		create pedestrian number:1{
 	    		speed<-0.36;
-	    		d<-{100,73};
+	    		d<-{300,73};
 	    		location<-{0,50+walk_shift+rnd(0,max(walk_length-1),1)};
 	    		write("生成された高さ:"+50+walk_shift+rnd(0,max(walk_length-1),1));
     		}
@@ -155,7 +155,7 @@ experiment main3 type:gui{
     	speed<-0.36;
    		d<-{0,73};
    		color<-#yellow;
-    	location<-{100,50+walk_shift+rnd(0,max(walk_length-1),1)};
+    	location<-{300,50+walk_shift+rnd(0,max(walk_length-1),1)};
     	}
     	
     	}
@@ -172,8 +172,8 @@ experiment main3 type:gui{
 				location<-{0,50-(3.75*3)};
     			move_vector<-{1.16,0};
     			color<-#white;
-    			target_point<-{100,50-(3.75*3)};
-//    			target_point<-{100,bicy_p};
+    			target_point<-{300,50-(3.75*3)};
+//    			
     		}	
 		}	
     }
@@ -187,8 +187,8 @@ experiment main3 type:gui{
 			avoid_list<-["car"];
     		float bicy_p<-50+bicycle_shift+rnd(0,bi_r_length);
     		write("Aaaaaaaaaaaa"+bicy_p);
-//    		location<-{100,bicy_p};
-			location<-{100,50+(3.75*3)};
+
+			location<-{300,50+(3.75*3)};
    			move_vector<-{-1.16,0};
     		color<-#white;
 //    		target_point<-{0,bicy_p};

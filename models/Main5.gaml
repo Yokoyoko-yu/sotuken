@@ -43,7 +43,7 @@ global{
 experiment main5 type:gui{
 	init{
 		point A<-{0,50};
-		point B<-{100,50};
+		point B<-{300,50};
 		create make_road with:[
 					start:A,
 					end:B,
@@ -76,17 +76,6 @@ experiment main5 type:gui{
     	write("自転車のずれ"+bicycle_shift);
     	write("自転車道の横幅"+bi_r_length);
 		write("road:"+road);
-    	create car number: 1 {
-	      location <- o.location;
-	      current_path <- compute_path(graph: road_network, nodes: [o,d]);
-	      color<-#blue;
-    	}
-    	
-    	create car number:1{
-    		location<-d.location;
-    		current_path<-compute_path(graph:road_network,nodes:[d,o]);
-    		color<-#green;
-    	}
     	
 //    	create bicycle number:1{
 //    			avoid_list<-["pedestrian"];
@@ -122,7 +111,7 @@ experiment main5 type:gui{
 			if(rnd(1,344)=4){
     		create pedestrian number:1{
     		speed<-0.36;
-    		d<-{100,29};
+    		d<-{300,29};
     		//回避するもののリスト
     		pedestrian_species <- [pedestrian,bicycle];
     		
@@ -138,7 +127,7 @@ experiment main5 type:gui{
    		d<-{0,29};
    		pedestrian_species <- [pedestrian,bicycle];
    		color<-#yellow;
-    	location<-{100,50-walk_shift-rnd(0,max(walk_length-1),1)};
+    	location<-{300,50-walk_shift-rnd(0,max(walk_length-1),1)};
     	}
     	}
     }
@@ -147,7 +136,7 @@ experiment main5 type:gui{
     		if(rnd(1,344)=4){
     		create pedestrian number:1{
     		speed<-0.36;
-    		d<-{100,73};
+    		d<-{300,73};
     		pedestrian_species <- [pedestrian,bicycle];
     		location<-{0,50+walk_shift+rnd(0,max(walk_length-1),1)};
     	}
@@ -161,7 +150,7 @@ experiment main5 type:gui{
    		d<-{0,73};
     	pedestrian_species <- [pedestrian,bicycle];
    		color<-#yellow;
-    	location<-{100,50+walk_shift+rnd(0,max(walk_length-1),1)};
+    	location<-{300,50+walk_shift+rnd(0,max(walk_length-1),1)};
     	}
     	}
 	}
@@ -190,7 +179,7 @@ experiment main5 type:gui{
     			location<-{0,bicy_p};
     			move_vector<-{1.16,0};
     			color<-#white;
-    			target_point<-{100,bicy_p};
+    			target_point<-{300,bicy_p};
     		}	
     	}
     }
@@ -201,7 +190,7 @@ experiment main5 type:gui{
     		create bicycle number:1{
     			avoid_list<-["pedestrian"];
     			float bicy_p<-50-bicycle_shift-rnd(0,bi_r_length);
-    			location<-{100,bicy_p};
+    			location<-{300,bicy_p};
     			move_vector<-{-1.16,0};
     			color<-#white;
     			target_point<-{0,bicy_p};
@@ -219,7 +208,7 @@ experiment main5 type:gui{
     			location<-{0,bicy_p};
     			move_vector<-{1.16,0};
     			color<-#white;
-    			target_point<-{100,bicy_p};
+    			target_point<-{300,bicy_p};
     		}	
     	}
     }
@@ -230,7 +219,7 @@ experiment main5 type:gui{
 			avoid_list<-["pedestrian"];
     		float bicy_p<-50+bicycle_shift+rnd(0,bi_r_length);
     		write("Aaaaaaaaaaaa"+bicy_p);
-    		location<-{100,bicy_p};
+    		location<-{300,bicy_p};
    			move_vector<-{-1.16,0};
     		color<-#white;
     		target_point<-{0,bicy_p};

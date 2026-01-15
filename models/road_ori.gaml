@@ -88,7 +88,7 @@ experiment c type:gui{
 	 
 		init{
 			point A<-{0,50};
-			point B<-{100,50};
+			point B<-{300,50};
 			create road with:[		
 						one_way:false,
 						speed:60,
