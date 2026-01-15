@@ -76,6 +76,15 @@ experiment main1 type:gui{
     	write("自転車のずれ"+bicycle_shift);
     	write("自転車道の横幅"+bi_r_length);
 		write("road:"+road);
+		create bicycle number:1{
+    			avoid_list<-["car"];
+    			float bicy_p<-50-bicycle_shift-rnd(0,1.5); //例外
+    			
+    			location<-{0,38};
+    			move_vector<-{0.5,0};
+    			color<-#white;
+    			target_point<-{100,38};
+    		}	
     	create car number: 1 {
 	      location <- o.location;
 	      start_loc<-{0,50};
@@ -100,7 +109,7 @@ experiment main1 type:gui{
 	}
 	
 	//車右側
-	reflex  when:every(40#cycle) {
+	reflex  when:every(43#cycle) {
 	  create car number: 1 {
 	    location <- o.location;
 	    current_path <- compute_path(graph: road_network, nodes: [o, d]);
@@ -109,7 +118,7 @@ experiment main1 type:gui{
 	}
 	
 	//車左側
-	reflex when:every(40#cycle){
+	reflex when:every(43#cycle){
 		create car number:1{
     		location<-d.location;
     		current_path<-compute_path(graph:road_network,nodes:[d,o]);
@@ -118,21 +127,23 @@ experiment main1 type:gui{
 	}
 	
 	//左上
-	reflex when:every(400#cycle){
-    		create pedestrian number:1{
-    		speed<-0.7;
+	reflex when:every(10#cycle){
+		if(rnd(1,344)=4){
+			create pedestrian number:1{
+    		speed<-0.36;
     		d<-{100,29};
     		location<-{0,50-walk_shift-rnd(0,max(walk_length-1),1)};
-    	}
+    		}
+		}
     	}
     	
     //歩行者
     
     //右上
-    reflex when:every(400#cycle){
-    	if(int(rnd(1,5))=4){
+    reflex when:every(10#cycle){
+    	if(rnd(1,344)=4){
     		create pedestrian number:1{
-	    	speed<-0.7;
+	    	speed<-0.36;
 	   		d<-{0,29};
 	   		color<-#yellow;
 	    	location<-{100,50-walk_shift-rnd(0,max(walk_length-1),1)};
@@ -141,47 +152,52 @@ experiment main1 type:gui{
 
     }
     //左下
-    	reflex when:every(400#cycle){
+    reflex when:every(10#cycle){
+    		if(rnd(1,344)=4){
     		create pedestrian number:1{
-    		speed<-0.7;
+    		speed<-0.36;
     		d<-{100,73};
     		location<-{0,50+walk_shift+rnd(0,max(walk_length-1),1)};
+    		}
     	}
     	}
     //右下
-      reflex when:every(400#cycle){
+      reflex when:every(10#cycle){
+      	if(rnd(1,344)=4){
     	create pedestrian number:1{
-    	speed<-0.7;
+    	speed<-0.36;
    		d<-{0,73};
    		color<-#yellow;
     	location<-{100,50+walk_shift+rnd(0,max(walk_length-1),1)};
     	}	
+    	}
 	}
 	
 	//自転車の作成
 	//左上
-	reflex when:every(50#cycle){
-		if(rnd(1,5)=4){
+	reflex when:every(10#cycle){
+		if(rnd(1,172)=4){
     		create bicycle number:1{
     			avoid_list<-["car"];
     			float bicy_p<-50-bicycle_shift-rnd(0,1.5); //例外
     			
     			location<-{0,38};
-    			move_vector<-{0.5,0};
+    			move_vector<-{1.16,0};
     			color<-#white;
     			target_point<-{100,38};
     		}	
 		}
     }
-    
+//    
     //右下
-    reflex when:every(20#cycle){
-    	if(rnd(1,5)=4){
+    reflex when:every(10#cycle){
+    	if(rnd(1,172)=4){
 		create bicycle number:1{
+			avoid_list<-["car"];
     		float bicy_p<-50+bicycle_shift+rnd(0,bi_r_length);
     		write("Aaaaaaaaaaaa"+bicy_p);
     		location<-{100,62};
-   			move_vector<-{-0.5,0};
+   			move_vector<-{-1.16,0};
     		color<-#white;
     		target_point<-{0,62};
    		}	
@@ -189,6 +205,7 @@ experiment main1 type:gui{
     }
     
     reflex when:every(1#cycle){
+    	write("time:"+time);
     	if(!empty(bicycle)){
     		loop b over:bicycle{
     			float v<-norm(b.move_vector);
@@ -198,7 +215,7 @@ experiment main1 type:gui{
     	}
     	
     	if(ave_b_count>0){
-    		write("******自転車"+(ave_b/ave_b_count)/scale*(1/step)+"m/s*****");
+    		write("******自転車の速度"+(ave_b/ave_b_count)/scale*(1/step)*3600/1000+"km/h*****");
     	}
     	if(!empty(pedestrian)){
     		loop p over:pedestrian{
@@ -208,16 +225,21 @@ experiment main1 type:gui{
     		}
     	}
     	if(ave_ped_count>0){
-    		write("******歩行者"+ave_ped/ave_ped_count+"m/s*****");
+    		write("******歩行者の速度"+(ave_ped/ave_ped_count)*scale*(1/step)+"m/s*****");
     	}
     	if(b_num>0){
 			write("平均車間距離："+ave_b_nearest_c/b_num+"m");
-			write("平均自転車距離："+ave_b_nearest_b/b_num+"m");
+			write("平均自転車同士の距離："+ave_b_nearest_b/b_num+"m");
 			write("p_num"+p_num);
 			}
 		if(p_num>0){
 			write("自転車歩行者の平均距離："+ave_p_nearest_c/p_num+"m");
+			write("歩行者の通過時間:"+arrive_p_num/p_num);
 			}
+		if(arrive_num>0){
+			write("自転車の通過時間："+arrive_sum/arrive_num);
+		}
+		
     }
 	
 	output{

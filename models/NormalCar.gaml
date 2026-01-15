@@ -17,7 +17,7 @@ species car skills:[driving]{
 	point before_location;
   init{
     vehicle_length <- 4.5#m;
-    max_speed <- 40#km/#h;
+    max_speed <- 60*3#km/#h;
     max_acceleration <- 3.0;
     start_loc<-self.location;
 
@@ -38,7 +38,7 @@ species car skills:[driving]{
   	float start_x<-self.start_loc.x;
   	judge_x<-(end_x-start_x);
   	if (self.current_path=nil){
-  		write("車が削除されました");
+//  		write("車が削除されました");
   		do die;
   		}
 	if(judge_x>0){

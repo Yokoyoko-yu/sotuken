@@ -14,23 +14,31 @@ import "BicycleRoad.gaml"
 
 
 global{
-	float max_bicycle_speed<-15*(1000/3600)#m/#s;//目標速度 km/hをm/sに変換
+	float max_bicycle_speed<-20*(1000/3600)*scale#m/#s;//目標速度 km/hをm/sに変換
 	float bicycle_width<-1.2;	//0.5m
 	float bicycle_length<-5.4;	//1.8m
-	float tau<-5#s;
-	float lambda<-0.1; //背後から受ける斥力の重み付け
+	float tau<-9#s;
+	float lambda<-0.3; //背後から受ける斥力の重み付け
 	float road_p;	//道路の境界から受ける斥力の重みづけ
-	float A_road<-1.0;
-	float B_road<-0.7;
+//	float A_road<-4.0;
+//	float B_road<-1.7;
+//	float A_road<-6;
+//	float B_road<-0.8;
+	float A_road<-2.3;
+	float B_road<-5;
 	//自動車用
-	float A_car<-0.5;
-	float B_car<-0.4;
+//	float A_car<-2.7;
+//	float B_car<-11.3;
+	float A_car<-8;
+	float B_car<-12;
 	//自転車用
-	float A_bike<-0.8;
-	float B_bike<-0.7;
+//	float A_bike<-0.8;
+//	float B_bike<-0.7;
+	float A_bike<-1.7;
+	float B_bike<-3.25;
 	//歩行者用
-	float A_ped<-0.4;
-	float B_ped<-0.3;
+	float A_ped<-2;
+	float B_ped<-0.5;
 	//計測用
 	list <float> dead_list<-[0.0];
 	float arrive_sum<-0.0;
@@ -115,7 +123,7 @@ species bicycle{
 			point np<-nearest_edge_v(s,e,self.location);//自転車と最も近い点
 			float d_from_edge<-self.location distance_to np;
 			if(d_from_edge)<5.0 and d_to_target>5.0 and self.location!=np{
-				point d_r<-self.location-np;
+				point d_r<-(self.location-np)*scale;
 				point e_r<-(d_r/norm(d_r));//自転車が逃げる方向の単位ベクトル
 				point g<-e_r*(A_road*(exp(-1*norm(d_r)/B_road)));
 				ans<-ans+g;
@@ -197,10 +205,10 @@ species bicycle{
 		if(!empty(near_agents)){
 		loop age over:near_agents{
 			if(age is bicycle){
-				write("-----------------");
+//				write("-----------------");
 				float d_b<-(age distance_to self);
-				write("自転車との距離"+d_b);
-				write("-----------------");
+//				write("自転車との距離"+d_b);
+//				write("-----------------");
 				if(self.b_nearest_bi>d_b){
 					self.b_nearest_bi<-d_b;
 				}
@@ -237,7 +245,7 @@ species bicycle{
 		}
 
 		//エージェントから主体までのベクトルd
-		point d_v<-(self_n_point-opponent_n_point);
+		point d_v<-(self_n_point-opponent_n_point)*scale;
 		//φを求める
 		float phi<-angle_between(self_n_point,opponent_n_point-self_n_point,self.move_vector);
 		float ganma<- lambda+(1-lambda)*((1+cos(phi))/2);
@@ -245,7 +253,7 @@ species bicycle{
 		point e<-((d_v/norm(d_v))+((d_v-relative_speed)/norm((d_v-relative_speed))))*(0.5);
 		float b<-0.5*(sqrt((norm(d_v)+norm(d_v-relative_speed))*(norm(d_v)+norm(d_v-relative_speed))-(norm(relative_speed)*norm(relative_speed))));//Δtは反応速度
 		b<-max(0.000000001,b);
-		point g<-e*(A_ped*(max(0.1,exp(-b/B_ped)))*((norm(d_v)+norm(d_v-relative_speed))/(2*b)));
+		point g<-e*(A_bike*(max(0.1,exp(-b/B_bike)))*((norm(d_v)+norm(d_v-relative_speed))/(2*b)));
 //		write("b:"+b);
 
 		return g*ganma;
@@ -266,7 +274,7 @@ species bicycle{
 			}
 			
 			//エージェントから主体までのベクトルd
-			point d_v<-(self_n_point-opponent_n_point);
+			point d_v<-(self_n_point-opponent_n_point)*scale;
 			//φを求める
 			float phi<-angle_between(self_n_point,opponent_n_point-self_n_point,self.move_vector);
 			float ganma<- lambda+(1-lambda)*((1+cos(phi))/2);
@@ -295,17 +303,24 @@ species bicycle{
 		}
 
 		//エージェントから主体までのベクトルd
-		point d_v<-(self_n_point-opponent_n_point);
+		point d_v<-(self_n_point-opponent_n_point)*scale;
 		//φを求める
-		float phi<-angle_between(self_n_point,opponent_n_point-self_n_point,self.move_vector);
+//		float phi<-angle_between(self.location,a_car.location-self.location/norm(a_car.location-self.location),self.move_vector/norm(self.move_vector));
+		float phi<-angle_between(self.location,a_car.location,self.move_vector+self.location);
 		float ganma<- lambda+(1-lambda)*((1+cos(phi))/2);
+//		write("a_car.location-self.location:"+(a_car.location-self.location)/norm(a_car.location-self.location)+"self.move_vector"+self.move_vector/norm(self.move_vector));
+//		write("cos(phi)の値:"+cos(phi));
+//		write("cos45の値:"+cos(45));
+//		write("rnd(1,10)"+rnd(1,10));
+//		write(acos({0,1},{1,0}));
 		point relative_speed<-a_car.move_vector-self.move_vector;//論文中のyの式にあたる
 		point e<-((d_v/norm(d_v))+((d_v-relative_speed)/norm((d_v-relative_speed))))*(0.5);
 		float b<-0.5*(sqrt((norm(d_v)+norm(d_v-relative_speed))*(norm(d_v)+norm(d_v-relative_speed))-(norm(relative_speed)*norm(relative_speed))));//Δtは反応速度
 		b<-max(0.000000001,b);
 		point g<-e*(A_car*(max(0.1,exp(-b/B_car)))*((norm(d_v)+norm(d_v-relative_speed))/(2*b)));
 //		write("b:"+b);
-
+//		write("自転車が自動車から受けるg"+g);
+//		write("ganmaの値："+ganma);
 		return g*ganma;
 	}
 	

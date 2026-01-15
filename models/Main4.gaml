@@ -75,22 +75,22 @@ experiment main4 type:gui{
     	write("自転車のずれ"+bicycle_shift);
     	write("自転車道の横幅"+bi_r_length);
 		write("road:"+road);
-    	create car number: 1 {
-	      location <- o.location;
-	      current_path <- compute_path(graph: road_network, nodes: [o,d]);
-	      color<-#blue;
-    	}
-    	
-    	create car number:1{
-    		location<-d.location;
-    		current_path<-compute_path(graph:road_network,nodes:[d,o]);
-    		color<-#green;
-    	}
+//    	create car number: 1 {
+//	      location <- o.location;
+//	      current_path <- compute_path(graph: road_network, nodes: [o,d]);
+//	      color<-#blue;
+//    	}
+//    	
+//    	create car number:1{
+//    		location<-d.location;
+//    		current_path<-compute_path(graph:road_network,nodes:[d,o]);
+//    		color<-#green;
+//    	}
     	    	
 	}
 	
 	//車右側
-	reflex  when:every(40#cycle) {
+	reflex  when:every(43#cycle) {
 	  create car number: 1 {
 	    location <- o.location;
 	    current_path <- compute_path(graph: road_network, nodes: [o, d]);
@@ -99,7 +99,7 @@ experiment main4 type:gui{
 	}
 	
 	//車左側
-	reflex when:every(40#cycle){
+	reflex when:every(43#cycle){
 		create car number:1{
     		location<-d.location;
     		current_path<-compute_path(graph:road_network,nodes:[d,o]);
@@ -108,12 +108,21 @@ experiment main4 type:gui{
 	}
 	
  //歩行者
-    
+    //左上
+     reflex when:every(10#cycle){
+    	if(rnd(1,344)=4){
+    	create pedestrian number:1{
+    	speed<-0.36;
+    	d<-{100,73};
+    	location<-{0,50-walk_shift-rnd(0,max(walk_length-1),1)};
+    	}
+    	}
+    	}
     //右上
-    reflex when:every(400#cycle){
-    	if(int(rnd(1,5))=4){
+    reflex when:every(10#cycle){
+    	if(rnd(1,344)=4){
     		create pedestrian number:1{
-	    	speed<-0.7;
+	    	speed<-0.36;
 	   		d<-{0,29};
 	   		color<-#yellow;
 	    	location<-{100,50-walk_shift-rnd(0,max(walk_length-1),1)};
@@ -122,138 +131,99 @@ experiment main4 type:gui{
 
     }
     //左下
-    	reflex when:every(400#cycle){
+    	reflex when:every(10#cycle){
+    		if(rnd(1,344)=4){
     		create pedestrian number:1{
-    		speed<-0.7;
+    		speed<-0.36;
     		d<-{100,73};
     		location<-{0,50+walk_shift+rnd(0,max(walk_length-1),1)};
     	}
     	}
+    	}
     //右下
-      reflex when:every(400#cycle){
+      reflex when:every(10#cycle){
+      	if(rnd(1,344)=4){
     	create pedestrian number:1{
-    	speed<-0.7;
+    	speed<-0.36;
    		d<-{0,73};
    		color<-#yellow;
     	location<-{100,50+walk_shift+rnd(0,max(walk_length-1),1)};
     	}	
+    	}
 	}
 	
 	//自転車の作成
     //左上
-//    reflex when:every(100#cycle){
-////    	if(rnd(1,107)=107){
-//    		create bicycle number:1{
-//    			float bicy_p<-50-bicycle_shift-rnd(0,bi_r_length);
-//    			write("bicy_p"+bicy_p);
-//    			bicycle_point<-{0,bicy_p};
-//    			move_vector<-{2,0};
-//    			color<-#white;
-//    			target_point<-{100,bicy_p};
-//    		}	
-////    	}
-//    }
-
-    //左上
-    reflex when:every(100#cycle){
-    	if(rnd(1,5)=4){
-    		create bicycle with:[
-			location:{0,37},
-			move_vector:{2,0},
-			color:#white,
-			target_point:{100,37}
-		];
-		
-		}	
-    }
-    
-    //右上
-//    reflex when:every(100#cycle){
-//    	if(rnd(1,107)=107){
-//    		create bicycle number:1{
-//    			float bicy_p<-50-bicycle_shift-rnd(0,bi_r_length);
-//    			bicycle_point<-{100,bicy_p};
-//    			move_vector<-{-2,0};
-//    			color<-#black;
-//    			target_point<-{0,bicy_p};
-//    		}	
-//    	}
-//    }
-
-	
-    //左下
-//    reflex when:every(100#cycle){
-//    	if(rnd(1,107)=107){
-//    		create bicycle number:1{
-//    			float bicy_p<-50+bicycle_shift+rnd(0,bi_r_length);
+    reflex when:every(10#cycle){
+    	if(rnd(1,172)=7){
+    		create bicycle number:1{
+    			float bicy_p<-50-bicycle_shift-rnd(0,bi_r_length);
+    			write("bicy_p"+bicy_p);
+    			location<-{0,50-(4.25*3)};
 //    			location<-{0,bicy_p};
-//    			move_vector<-{2,0};
-//    			color<-#white;
+    			move_vector<-{1.16,0};
+    			color<-#white;
+    			target_point<-{100,50-(4.25*3)};
 //    			target_point<-{100,bicy_p};
-//    		}	
-//    	}
-//    }
+    		}	
+    	}
+    }
+
+
     //右下
-    reflex when:every(100#cycle){
-    	if(rnd(1,5)=4){
+    reflex when:every(10#cycle){
+    	if(rnd(1,172)=4){
 		create bicycle number:1{
     		float bicy_p<-50+bicycle_shift+rnd(0,bi_r_length);
     		write("Aaaaaaaaaaaa"+bicy_p);
-    		location<-{100,bicy_p};
-   			move_vector<-{-0.5,0};
+//    		location<-{100,bicy_p};
+    		location<-{100,50+(4.25*3)};
+   			move_vector<-{-1.16,0};
     		color<-#white;
-    		target_point<-{0,bicy_p};
+//    		target_point<-{0,bicy_p};
+    		target_point<-{0,50+(4.25*3)};
    		}	
     	}
     }
     
-    reflex when:every(1#cycle){
-    	if(!empty(bicycle)){
-    		loop b over:bicycle{
-    			float v<-norm(b.move_vector);
-    			ave_b_count<-ave_b_count+1;
-    			ave_b<-ave_b+v;
-    		}
-    	}
-    	
-    	if(ave_b_count>0){
-    		write("******自転車"+(ave_b/ave_b_count)/scale*(1/step)+"m/s*****");
-    	}
-    	if(!empty(pedestrian)){
-    		loop p over:pedestrian{
-    			float v<-norm(p.velocity);
-    			ave_ped<-ave_ped+v;
-    			ave_ped_count<-ave_ped_count+1;
-    		}
-    	}
-    	if(ave_ped_count>0){
-    		write("******歩行者"+ave_ped/ave_ped_count+"m/s*****");
-    	}
-    }
+
     
-    reflex when:every(1#cycle){
-    	if(!empty(bicycle)){
-    		loop b over:bicycle{
-    			float v<-norm(b.move_vector);
-    			ave_b_count<-ave_b_count+1;
-    			ave_b<-ave_b+v;
-    		}
-    	}
-    	
-    	if(ave_b_count>0){
-    		write("******自転車"+(ave_b/ave_b_count)/scale*(1/step)+"m/s*****");
-    	}
-    	if(!empty(pedestrian)){
-    		loop p over:pedestrian{
-    			float v<-norm(p.velocity);
-    			ave_ped<-ave_ped+v;
-    			ave_ped_count<-ave_ped_count+1;
-    		}
-    	}
-    	if(ave_ped_count>0){
-    		write("******歩行者"+ave_ped/ave_ped_count+"m/s*****");
-    	}
-    }
+	reflex when:every(1#cycle){
+	    	write("time:"+time);
+	    	if(!empty(bicycle)){
+	    		loop b over:bicycle{
+	    			float v<-norm(b.move_vector);
+	    			ave_b_count<-ave_b_count+1;
+	    			ave_b<-ave_b+v;
+	    		}
+	    	}
+	    	
+	    	if(ave_b_count>0){
+	    		write("******自転車"+(ave_b/ave_b_count)/scale*(1/step)*3600/1000+"km/h*****");
+	    	}
+	    	if(!empty(pedestrian)){
+	    		loop p over:pedestrian{
+	    			float v<-norm(p.velocity);
+	    			ave_ped<-ave_ped+v;
+	    			ave_ped_count<-ave_ped_count+1;
+	    		}
+	    	}
+	    	if(ave_ped_count>0){
+	    		write("******歩行者"+(ave_ped/ave_ped_count)*scale*(1/step)+"m/s*****");
+	    	}
+	    	if(b_num>0){
+				write("平均車間距離："+ave_b_nearest_c/b_num+"m");
+				write("平均自転車距離："+ave_b_nearest_b/b_num+"m");
+				write("p_num"+p_num);
+				}
+			if(p_num>0){
+				write("自転車歩行者の平均距離："+ave_p_nearest_c/p_num+"m");
+				}
+				
+			if(arrive_num>0){
+			write("自転車の通過時間："+arrive_sum/arrive_num);
+			}
+	    }
 	
 	
 	output{

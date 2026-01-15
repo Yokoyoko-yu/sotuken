@@ -17,6 +17,7 @@ global{
 	//自転車との最近接距離の平均
 	float ave_p_nearest_c;
 	float p_num; //自転車の母数
+	float arrive_p_num;
 }
 
 species pedestrian skills:[pedestrian]{
@@ -27,12 +28,14 @@ species pedestrian skills:[pedestrian]{
 	float speed;
 	//一つ前の位置座表
 	float p_nearest_b<-150.0;
+	float sporn_time;
 //	one_of(pedestrian_road).free_space
 	init{
-		write("現在地"+location);
-		 write("目的地"+d);
-		 write("avoid"+avoid_other);
-		 write("ob"+obstacle_consideration_distance);
+		self.sporn_time<-time;
+//		write("現在地"+location);
+//		 write("目的地"+d);
+//		 write("avoid"+avoid_other);
+//		 write("ob"+obstacle_consideration_distance);
 		 //お試し
 		 pedestrian_model <- "advanced";      // まずは高度版SFM
 		 avoid_other <- true;                 // 他歩行者を避ける
@@ -52,9 +55,10 @@ species pedestrian skills:[pedestrian]{
 	}
 	
 	reflex delete when: time>1.0 and self.current_waypoint=nil{
-		write("歩行者を削除します");
+//		write("歩行者を削除します");
 		ave_p_nearest_c<-ave_p_nearest_c+(self.p_nearest_b)/scale;
 		p_num<-p_num+1;
+		arrive_p_num<-arrive_p_num+(time-self.sporn_time);
 		do die;
 	}
 	
@@ -65,10 +69,10 @@ species pedestrian skills:[pedestrian]{
 			if(p_nearest_b>p_d){
 				p_nearest_b<-p_d;
 			}
-		write("999999999999");
-		write("自転車との距離:"+self.p_nearest_b);
-		write("999999999999");
-		write("p_num"+p_num);
+//		write("999999999999");
+//		write("自転車との距離:"+self.p_nearest_b);
+//		write("999999999999");
+//		write("p_num"+p_num);
 		}
 	}
 	aspect base{
